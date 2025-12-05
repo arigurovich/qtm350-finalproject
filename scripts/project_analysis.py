@@ -1,0 +1,108 @@
+import wbgapi as wb
+import pandas as pd
+import duckdb
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# --- STEP 1: FETCH DATA (ROBUST METHOD) ---
+print("Fetching data from World Bank...")
+indicators = {
+    'NY.GDP.MKTP.KD.ZG': 'gdp_growth',
+    'SL.EMP.TOTL.SP.ZS': 'employment_ratio'
+}
+
+# Use .fetch() instead of .DataFrame() to get a flat list of dictionaries
+# This avoids index confusion and ensures we know exactly what columns we have.
+data_generator = wb.data.fetch(indicators.keys(), economy='ECS', time=range(1990, 2024))
+df_raw = pd.DataFrame(data_generator)
+
+# --- STEP 2: PRE-PROCESSING (Python) ---
+print("Structuring data...")
+
+# 1. Clean the 'time' column (usually comes as 'YR1990', 'YR1991')
+# We strip 'YR' and convert to integer
+df_raw['year'] = df_raw['time'].astype(str).str.replace('YR', '').astype(int)
+
+# 2. Pivot the table manually
+# We want: One row per year, with columns for our specific indicators
+df_pivoted = df_raw.pivot(index='year', columns='series', values='value').reset_index()
+
+# 3. Rename columns to match the SQL query expectations
+# We explicitly map the codes to friendly names here
+df_pivoted = df_pivoted.rename(columns={
+    'NY.GDP.MKTP.KD.ZG': 'gdp_growth', 
+    'SL.EMP.TOTL.SP.ZS': 'employment_ratio'
+})
+
+print("Columns available:", df_pivoted.columns.tolist())
+
+# --- STEP 3: SQL DATA CLEANING ---
+print("Cleaning data using SQL...")
+
+# Now the dataframe has exactly the columns: 'year', 'gdp_growth', 'employment_ratio'
+clean_query = """
+SELECT 
+    year,
+    gdp_growth,
+    employment_ratio
+FROM df_pivoted
+WHERE 
+    gdp_growth IS NOT NULL 
+    AND employment_ratio IS NOT NULL
+ORDER BY year
+"""
+df_cleaned = duckdb.query(clean_query).df()
+
+# --- STEP 4: SQL DESCRIPTIVE STATISTICS ---
+print("Calculating statistics using SQL...")
+
+stats_query = """
+SELECT 
+    AVG(gdp_growth) AS avg_gdp_growth,
+    STDDEV(gdp_growth) AS std_gdp_growth,
+    AVG(employment_ratio) AS avg_emp_ratio,
+    STDDEV(employment_ratio) AS std_emp_ratio,
+    CORR(gdp_growth, employment_ratio) AS correlation
+FROM df_cleaned
+"""
+stats_df = duckdb.query(stats_query).df()
+
+print("\n--- Descriptive Statistics (Europe) ---")
+print(stats_df)
+print("---------------------------------------")
+
+# --- STEP 5: VISUALIZATION ---
+print("Generating plots...")
+sns.set_theme(style="whitegrid")
+
+# Plot 1: Time Series Evolution
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+color = 'tab:blue'
+ax1.set_xlabel('Year')
+ax1.set_ylabel('GDP Growth (%)', color=color)
+ax1.plot(df_cleaned['year'], df_cleaned['gdp_growth'], color=color, linewidth=2, label='GDP Growth')
+ax1.tick_params(axis='y', labelcolor=color)
+
+ax2 = ax1.twinx()  
+color = 'tab:green'
+ax2.set_ylabel('Employment Ratio (%)', color=color)
+ax2.plot(df_cleaned['year'], df_cleaned['employment_ratio'], color=color, linewidth=2, linestyle='--', label='Emp Ratio')
+ax2.tick_params(axis='y', labelcolor=color)
+
+plt.title('Europe: GDP Growth vs Employment Ratio (1990-2023)')
+fig.tight_layout()
+plt.savefig('europe_evolution_plot.png')
+print("Saved: europe_evolution_plot.png")
+
+# Plot 2: Scatter Plot
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=df_cleaned, x='gdp_growth', y='employment_ratio', s=100)
+plt.title('Correlation: GDP Growth vs Employment Ratio (Europe)')
+plt.xlabel('GDP Growth (%)')
+plt.ylabel('Employment Ratio (%)')
+plt.tight_layout()
+plt.savefig('europe_scatter_plot.png')
+print("Saved: europe_scatter_plot.png")
+
+print("Analysis Complete.")
