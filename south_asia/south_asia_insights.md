@@ -20,7 +20,7 @@ This scatter plot examines the relationship between annual GDP growth and the em
 
 ## Joint Trends in GDP Growth and Employment Over Time
 
-![GDP Growth vs Employment (Combined](figures/gdp_vs_employment_combined_trend.png)
+![GDP Growth vs Employment (Combined](figures/gdp_and_employment_combined_trend.png)
 
 This combined time-series view highlights the differing responses of economic output and labor participation in South Asia. GDP growth exhibits sharp year-to-year volatility, including pronounced downturns during global crisis periods such as 2008 and especially 2020, followed by rapid rebounds. In contrast, the employment-to-population ratio changes far more gradually, showing smooth declines through the early 2010s and steady recoveries afterward rather than abrupt drops. Notably, the extreme GDP contraction in 2020 does not correspond to an equally dramatic collapse in employment, indicating that labor markets adjusted slowly relative to immediate economic shocks. This divergence suggests that employment levels in the region are influenced more by long-term structural forces such as education, training and labor market dynamics than by short-run economic fluctuations alone.
 
