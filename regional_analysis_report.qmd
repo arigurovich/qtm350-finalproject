@@ -5,7 +5,7 @@ author:
   - "Yuting Chen (Emory ID: 2554090)"
   - "Krisha Bhai (Emory ID: 2579706)"
   - "Christopher Chong (Emory ID: 2582000)"
-  - "Name (Emory ID: XXXXXXX)"
+  - "Ari Gurovich (Emory ID: 2586399)"
 date: today
 format:
   html:
