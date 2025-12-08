@@ -2,7 +2,7 @@
 title: "Global Analysis of GDP Growth and Employment Ratios: A Regional Perspective"
 author:
   - "Sohan Bellam (Emory ID: 2546700)"
-  - "Name (Emory ID: XXXXXXX)"
+  - "Yuting Chen (Emory ID: 2554090)"
   - "Name (Emory ID: XXXXXXX)"
   - "Name (Emory ID: XXXXXXX)"
   - "Name (Emory ID: XXXXXXX)"
