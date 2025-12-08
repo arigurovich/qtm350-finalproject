@@ -90,7 +90,7 @@ axes[0, 1].axis('off')
 axes[0, 1].set_title('Asia: GDP Growth vs Employment', fontsize=10, fontweight='bold')
 
 # North America
-img_na = Image.open('figures/NA_gdp_growth_by_subregion.png')
+img_na = Image.open('figures/north_america_gdp_vsemployment.png')
 axes[1, 0].imshow(img_na)
 axes[1, 0].axis('off')
 axes[1, 0].set_title('North America: GDP Growth by Sub-Region', fontsize=10, fontweight='bold')
