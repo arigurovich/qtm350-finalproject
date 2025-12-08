@@ -4,7 +4,7 @@ author:
   - "Sohan Bellam (Emory ID: 2546700)"
   - "Yuting Chen (Emory ID: 2554090)"
   - "Krisha Bhai (Emory ID: 2579706)"
-  - "Name (Emory ID: XXXXXXX)"
+  - "Christopher Chong (Emory ID: 2582000)"
   - "Name (Emory ID: XXXXXXX)"
 date: today
 format:
