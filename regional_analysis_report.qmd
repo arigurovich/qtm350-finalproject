@@ -132,7 +132,7 @@ axes[0, 1].imshow(img2)
 axes[0, 1].axis('off')
 axes[0, 1].set_title('Asia', fontsize=9)
 
-img3 = Image.open('figures/NA_gdp_growth_vs_employment_ratio.png')
+img3 = Image.open('figures/NA_gdp_growth_vs_employment_ratio_correlation.png')
 axes[1, 0].imshow(img3)
 axes[1, 0].axis('off')
 axes[1, 0].set_title('North America', fontsize=9)
