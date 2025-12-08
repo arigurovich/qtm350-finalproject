@@ -1,0 +1,225 @@
+---
+title: "Global Analysis of GDP Growth and Employment Ratios: A Regional Perspective"
+author:
+  - "Sohan Bellam (Emory ID: 2546700)"
+  - "Name (Emory ID: XXXXXXX)"
+  - "Name (Emory ID: XXXXXXX)"
+  - "Name (Emory ID: XXXXXXX)"
+  - "Name (Emory ID: XXXXXXX)"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+    theme: cosmo
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - margin=1in
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Introduction
+
+Understanding the relationship between economic growth and labor market participation is central to development economics. This report analyzes the relationship between GDP growth and employment-to-population ratios across four major global regions—**Europe**, **Asia**, **North America**, and **Africa**—spanning 1990-2023.
+
+Our central research question is: **How do patterns of GDP growth and employment vary across global regions, and what is the nature of their relationship?** By examining these regions, we identify regional trends, correlations between growth and employment, and the impact of major economic events across different development contexts.
+
+# Data Description
+
+All data was retrieved from the World Bank's **World Development Indicators (WDI)** database using the `wbgapi` Python library.
+
+**Key Variables:**
+
+- **GDP Growth (%)** - WDI Code: `NY.GDP.MKTP.KD.ZG` - Annual percentage growth rate of GDP at constant 2015 U.S. dollars
+- **Employment Ratio (%)** - WDI Code: `SL.EMP.TOTL.SP.ZS` - Employment-to-population ratio, ages 15+
+
+**Regional Classifications:**
+
+- **Europe**: 6 sub-regions (Northern, Southern, Eastern, Western, Central, British Isles) from Europe & Central Asia
+- **Asia**: East Asia & Pacific aggregate with South Asia deep dive (8 countries)
+- **North America**: USA, Canada, Mexico
+- **Africa**: 10 major economies across all sub-regions (2000-2023)
+
+Data was cleaned to remove missing values, stored in SQLite databases, and aggregated for regional analysis.
+
+# Data Analysis
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sqlite3
+import warnings
+warnings.filterwarnings('ignore')
+sns.set_theme(style="whitegrid")
+plt.rcParams['figure.figsize'] = (7, 3.5)
+plt.rcParams['font.size'] = 9
+```
+
+## Regional Overview
+
+```{python}
+#| fig-cap: "Key regional trends in GDP growth and employment ratios"
+#| fig-width: 7
+#| fig-height: 6
+
+fig, axes = plt.subplots(2, 2, figsize=(10, 7))
+
+# Europe
+from PIL import Image
+img_europe = Image.open('figures/europe_evolution_plot.png')
+axes[0, 0].imshow(img_europe)
+axes[0, 0].axis('off')
+axes[0, 0].set_title('Europe: GDP Growth vs Employment', fontsize=10, fontweight='bold')
+
+# Asia
+img_asia = Image.open('figures/asia_evolution_plot.png')
+axes[0, 1].imshow(img_asia)
+axes[0, 1].axis('off')
+axes[0, 1].set_title('Asia: GDP Growth vs Employment', fontsize=10, fontweight='bold')
+
+# North America
+img_na = Image.open('figures/NA_gdp_growth_by_subregion.png')
+axes[1, 0].imshow(img_na)
+axes[1, 0].axis('off')
+axes[1, 0].set_title('North America: GDP Growth by Sub-Region', fontsize=10, fontweight='bold')
+
+# Africa
+img_africa = Image.open('figures/africa_gdp_employment_trend.png')
+axes[1, 1].imshow(img_africa)
+axes[1, 1].axis('off')
+axes[1, 1].set_title('Africa: GDP Growth vs Employment', fontsize=10, fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+**Europe** shows moderate growth with high volatility during the 2008 financial crisis and COVID-19. Employment remained relatively stable despite GDP fluctuations, suggesting jobless recovery patterns. Regional variation is significant, with Southern Europe particularly affected during the Eurozone crisis.
+
+**Asia** demonstrates high growth rates with resilience through global crises. The 1997-98 Asian Financial Crisis caused a sharp but temporary downturn. Employment ratios remained relatively stable, reflecting the region's economic dynamism and large labor force participation.
+
+**North America** exhibits stable growth patterns with strong interdependence between USA, Canada, and Mexico. Mexico shows higher volatility but faster growth trajectories. The 2008 crisis had significant impact with gradual recovery across all three economies.
+
+**Africa** shows promising growth since 2000 with high heterogeneity across countries. The dual-axis plot reveals GDP volatility with employment remaining relatively stable. Growth accelerated post-2000, though commodity dependency creates vulnerability to external shocks. Notably, Africa shows a correlation of 0.44 between GDP growth and employment, stronger than developed regions.
+
+## Correlation Analysis
+
+```{python}
+#| fig-cap: "Correlation between GDP growth and employment by region"
+#| fig-width: 8
+#| fig-height: 5
+
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+img1 = Image.open('figures/europe_scatter_plot.png')
+axes[0, 0].imshow(img1)
+axes[0, 0].axis('off')
+axes[0, 0].set_title('Europe', fontsize=9)
+
+img2 = Image.open('figures/asia_scatter_plot.png')
+axes[0, 1].imshow(img2)
+axes[0, 1].axis('off')
+axes[0, 1].set_title('Asia', fontsize=9)
+
+img3 = Image.open('figures/NA_gdp_growth_vs_employment_ratio.png')
+axes[1, 0].imshow(img3)
+axes[1, 0].axis('off')
+axes[1, 0].set_title('North America', fontsize=9)
+
+img4 = Image.open('figures/africa_gdp_employment_scatter.png')
+axes[1, 1].imshow(img4)
+axes[1, 1].axis('off')
+axes[1, 1].set_title('Africa', fontsize=9)
+
+plt.tight_layout()
+plt.show()
+```
+
+Scatter plots reveal **weak correlations** in developed regions (Europe, North America) between GDP growth and employment, indicating that economic growth doesn't automatically translate to proportional employment gains. Developing regions show stronger relationships, with Africa demonstrating a correlation of 0.44 - reflecting labor-intensive growth models where economic expansion more directly creates jobs.
+
+## South Asia Deep Dive
+
+```{python}
+df_sa = pd.read_csv('data/south_asia_data.csv')
+df_sa['year'] = df_sa['year'].str.replace('YR', '').astype(int)
+df_sa = df_sa.dropna(subset=['gdp_growth', 'employment_ratio'])
+
+stats = f"""
+**South Asia Summary (1990-2023)**
+- Countries: {df_sa['country_code'].nunique()}
+- Avg GDP Growth: {df_sa['gdp_growth'].mean():.2f}%
+- Avg Employment: {df_sa['employment_ratio'].mean():.2f}%
+- Correlation: {df_sa['gdp_growth'].corr(df_sa['employment_ratio']):.3f}
+"""
+print(stats)
+```
+
+```{python}
+#| fig-cap: "South Asia combined trends showing consistent growth"
+#| fig-width: 6
+#| fig-height: 3
+
+img = Image.open('figures/south_asia_gdp_and_employment_combined_trend.png')
+plt.figure(figsize=(7, 3.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+South Asia maintained remarkably consistent GDP growth (5-7% annually) with resilience through global crises, representing a successful development trajectory.
+
+```{python}
+# Detailed South Asia statistics by country - condensed
+sa_stats = df_sa.groupby('country_code').agg({
+    'gdp_growth': ['mean', 'std'],
+    'employment_ratio': ['mean', 'std']
+}).round(2)
+
+sa_stats.columns = ['GDP Growth (%)', 'GDP Volatility', 'Employment (%)', 'Emp Volatility']
+sa_stats = sa_stats.reset_index()
+sa_stats.columns = ['Country', 'GDP Growth (%)', 'GDP Volatility', 'Employment (%)', 'Emp Volatility']
+
+print("\nSouth Asia Country-Level Statistics (1990-2023):")
+print(sa_stats.to_string(index=False))
+print(f"\nOverall Correlation: {df_sa['gdp_growth'].corr(df_sa['employment_ratio']):.3f}")
+```
+
+# Results and Discussion
+
+## Key Findings
+
+**Regional Growth Patterns:** Asia leads in growth rates, driven by rapid industrialization and productivity improvements. Europe's mature economies show moderate growth with crisis-related volatility, particularly affecting Southern Europe during the Eurozone crisis. North America exhibits stable growth patterns with the USA as anchor. Africa demonstrates growth potential since 2000, though with high heterogeneity across countries.
+
+**Employment-Growth Relationships:** Developed regions (Europe, North America) show weak correlations between GDP growth and employment, indicating jobless recoveries and productivity gains decoupling growth from job creation. Developing regions show stronger relationships, with Africa exhibiting a correlation of 0.44, reflecting labor-intensive growth models and manufacturing-led development. South Asia shows a weak correlation of 0.11, suggesting complex structural factors beyond simple GDP-employment relationships.
+
+**Crisis Impacts:** The 1997-98 Asian Financial Crisis severely but briefly affected Asia. The 2008-09 Global Financial Crisis had universal impact—most severe in Europe with prolonged recession, gradual recovery in North America, and quick V-shaped recovery in Asia. The 2020 COVID-19 pandemic caused synchronized global shock with varying recovery speeds.
+
+## Implications
+
+**Policy:** High GDP growth doesn't automatically create employment, particularly in developed economies. Policies must focus on inclusive growth strategies tailored to regional development stages. Economic diversification enhances crisis resilience.
+
+**Research:** Future work should examine within-country heterogeneity, sectoral composition effects, informal employment in developing regions, and quality versus quantity of employment.
+
+**Limitations:** Regional averages mask local variations; employment data quality varies; informal employment is difficult to measure; analysis shows correlations not causality; structural breaks from policy changes may not be fully captured.
+
+# Conclusion
+
+This analysis of GDP growth and employment ratios across four global regions (1990-2023) reveals complex, context-dependent relationships. Asia's sustained high growth demonstrates that economic expansion can maintain employment, though growth nature matters critically. Europe faces low-growth employment challenges with significant sub-regional divergence. North America shows that diversified economies weather shocks effectively but must address productivity-employment decoupling. Africa's potential is evident but requires translating growth into sustainable employment.
+
+Key themes for the future include prioritizing inclusive growth quality over GDP quantity alone, managing structural transformation from agriculture through services, addressing automation's impact on employment, incorporating climate sustainability into growth models, and recognizing that regional context—institutions, demographics, geography, and historical development paths—shapes how growth translates into employment outcomes. Policymakers must design strategies accounting for these regional specificities while learning from cross-regional experiences.
+
+---
+
+**Reproducibility Note**: All code, data, and analysis scripts are available in the project repository at [github.com/qtm350-finalproject](https://github.com). Run scripts in `scripts/` directory to regenerate all figures and outputs.
