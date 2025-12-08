@@ -1,5 +1,7 @@
 # QTM 350 Final Project: Global Analysis of GDP Growth and Employment Ratios
 
+Ari Gurovich, Krisha Bhai, Sohan Bellam, Christopher Chong, Yuting Chen
+
 ## Project Overview
 
 This project presents a comprehensive analysis of the relationship between GDP growth and employment-to-population ratios across four major global regions: Europe, Asia, North America, and Africa. The analysis spans from 1990 to 2023 using data from the World Bank's World Development Indicators (WDI) database.
